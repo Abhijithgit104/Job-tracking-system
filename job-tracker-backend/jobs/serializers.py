@@ -3,6 +3,7 @@ from .models import JobPosting, Application
 from users.serializers import UserProfileSerializer
 
 class JobSerializer(serializers.ModelSerializer):
+    
     employer = UserProfileSerializer(read_only=True)
     
     class Meta:
@@ -11,6 +12,7 @@ class JobSerializer(serializers.ModelSerializer):
         read_only_fields=['employer']
 
 class ApplicationSerializer(serializers.ModelSerializer):
+
     job_details = JobSerializer(source='job', read_only=True)
     candidate = UserProfileSerializer(read_only=True)
     candidate_username = serializers.CharField(source='candidate.username', read_only=True)

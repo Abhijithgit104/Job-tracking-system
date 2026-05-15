@@ -1,35 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import Home from './pages/Home';
-import JobDetails from './pages/JobDetails';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import CandidateDashboard from './pages/CandidateDashboard';
-import EmployerDashboard from './pages/EmployerDashboard';
-import CreateJob from './pages/CreateJob';
-import Profile from './pages/Profile';
-import './index.css';
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+} from "react-router-dom";
+import Home from "./pages/Home";
+import JobDetails from "./pages/JobDetails";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import CandidateDashboard from "./pages/CandidateDashboard";
+import EmployerDashboard from "./pages/EmployerDashboard";
+import CreateJob from "./pages/CreateJob";
+import Profile from "./pages/Profile";
+import "./index.css";
 
 function Navbar({ user, onLogout }) {
   return (
     <nav>
-      <Link to="/" className="logo">JobTracker</Link>
+      <Link to="/" className="logo">
+        JobTracker
+      </Link>
       <div className="nav-links">
         <Link to="/">Browse Jobs</Link>
         {user ? (
           <>
-            {user.role === 'candidate' ? (
+            {user.role === "candidate" ? (
               <Link to="/candidate-dashboard">My Applications</Link>
             ) : (
               <Link to="/employer-dashboard">Employer Dashboard</Link>
             )}
             <Link to="/profile">Profile</Link>
-            <button onClick={onLogout} className="btn-outline">Logout</button>
+            <button onClick={onLogout} className="btn-outline">
+              Logout
+            </button>
           </>
         ) : (
           <>
             <Link to="/login">Login</Link>
-            <Link to="/register" className="btn-primary" style={{color: 'white'}}>Register</Link>
+            <Link
+              to="/register"
+              className="btn-primary"
+              style={{ color: "white" }}
+            >
+              Register
+            </Link>
           </>
         )}
       </div>
@@ -41,23 +57,23 @@ function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
+    const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
   }, []);
 
   const handleLogin = (userData, token) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   return (
