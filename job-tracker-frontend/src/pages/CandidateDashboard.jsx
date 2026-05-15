@@ -5,31 +5,97 @@ function CandidateDashboard() {
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState(null);
+  const prevAppsRef = React.useRef([]);
+
+  const fetchData = async (isInitial = false) => {
+    try {
+      const [appsRes, statsRes] = await Promise.all([
+        client.get("jobs/applications/"),
+        client.get("jobs/stats/"),
+      ]);
+
+      const newApps = appsRes.data;
+      
+      // Check for status changes (skip on initial load)
+      if (!isInitial && prevAppsRef.current.length > 0) {
+        newApps.forEach(newApp => {
+          const oldApp = prevAppsRef.current.find(a => a.id === newApp.id);
+          if (oldApp && oldApp.status !== newApp.status) {
+            setNotification({
+              id: Date.now(),
+              message: `Status updated! Your application for "${newApp.job_details.title}" is now ${newApp.status.toUpperCase()}.`,
+              type: newApp.status === 'rejected' ? 'error' : 'success'
+            });
+          }
+        });
+      }
+
+      setApplications(newApps);
+      setStats(statsRes.data);
+      prevAppsRef.current = newApps;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      if (isInitial) setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [appsRes, statsRes] = await Promise.all([
-          client.get("jobs/applications/"),
-          client.get("jobs/stats/"),
-        ]);
+    fetchData(true);
+    
+    // Poll for updates every 10 seconds
+    const interval = setInterval(() => {
+      fetchData();
+    }, 10000);
 
-        setApplications(appsRes.data);
-        setStats(statsRes.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <div className="container">Loading dashboard...</div>;
 
   return (
     <div className="animate-fade">
+      {/* Notification Bar */}
+      {notification && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: 1000,
+            background: notification.type === 'error' ? '#ef4444' : '#10b981',
+            color: 'white',
+            padding: '1rem 1.5rem',
+            borderRadius: '12px',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1rem',
+            animation: 'slideInRight 0.3s ease-out'
+          }}
+        >
+          <div style={{ fontSize: '1.25rem' }}>
+            {notification.type === 'error' ? '❌' : '🎉'}
+          </div>
+          <div style={{ fontWeight: '600' }}>{notification.message}</div>
+          <button 
+            onClick={() => setNotification(null)}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              fontSize: '0.8rem'
+            }}
+          >
+            Close
+          </button>
+        </div>
+      )}
+
       <div style={{ marginBottom: "3rem" }}>
         <h1 style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
           Your Journey
