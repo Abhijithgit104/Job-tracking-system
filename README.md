@@ -45,6 +45,7 @@ https://job-tracking-system-1-c57w.onrender.com/api/
   - Salary
 - Apply for jobs
 - Track application status
+- Notification email for updated status
 - Manage profile
 - Upload resume
 
