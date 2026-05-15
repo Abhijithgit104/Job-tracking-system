@@ -147,7 +147,7 @@ function CreateJob({ isEdit = false }) {
           </div>
         )}
         <div
-          style={{ display: "flex", gap: "1rem", marginTop: "1rem", padding }}
+          style={{ display: "flex", gap: "1rem", marginTop: "1rem"}}
         >
           <button type="submit" className="btn-primary" style={{ flex: 1 }}>
             {isEdit ? "Update Listing" : "Post Job"}
