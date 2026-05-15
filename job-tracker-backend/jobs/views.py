@@ -177,8 +177,14 @@ class ApplicationView(APIView):
         try:
             subject = f"Application Status Update: {application.job.title}"
             message = f"Hello {application.candidate.username},\n\nYour application status for '{application.job.title}' has been updated to: {new_status}.\n\nBest regards,\nJob Tracker Team"
-            recipient_list = [application.candidate.email]
-            send_mail(subject, message, None, recipient_list)
+            recipient_email = application.candidate.email
+            
+            if recipient_email:
+                recipient_list = [recipient_email]
+                send_mail(subject, message, None, recipient_list)
+                print(f"Email sent to {recipient_email}")
+            else:
+                print(f"Warning: No email found for candidate {application.candidate.username}. Email not sent.")
 
         except Exception as e:
             print(f"Error sending email: {e}")

@@ -5,6 +5,7 @@ import client from "../api/client";
 function Register() {
   const [formData, setFormData] = useState({
     username: "",
+    email: "",
     password: "",
     role: "candidate",
   });
@@ -133,6 +134,20 @@ function Register() {
               required
             />
           </div>
+
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              required
+            />
+          </div>
+
           <div className="form-group">
             <label>Password</label>
             <input

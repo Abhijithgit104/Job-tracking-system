@@ -18,5 +18,9 @@ class Candidate(models.Model):
     skills = models.TextField(blank=True)
     resume = models.FileField(upload_to='resumes/', blank=True, null=True)
 
+    @property
+    def email(self):
+        return self.user.email if self.user else ""
+
     def __str__(self):
         return self.user.username if self.user else "Unnamed Candidate"

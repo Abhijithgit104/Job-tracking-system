@@ -26,14 +26,14 @@ function Profile({ user }) {
     setSaving(true);
     try {
       const formData = new FormData();
+      formData.append("email", profile.email || "");
+      
       if (user.role === "candidate") {
         formData.append("bio", profile.bio || "");
         formData.append("skills", profile.skills || "");
         if (resume) {
           formData.append("resume", resume);
         }
-      } else {
-        formData.append("email", profile.user.email);
       }
 
       await client.patch("/profile/", formData, {
@@ -63,7 +63,18 @@ function Profile({ user }) {
         </div>
 
         <form onSubmit={handleUpdate}>
-          {user?.role === "candidate" ? (
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              value={profile.email || ""}
+              onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          {user?.role === "candidate" && (
             <>
               <div className="form-group">
                 <label>Bio</label>
@@ -108,20 +119,6 @@ function Profile({ user }) {
                 />
               </div>
             </>
-          ) : (
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                value={profile.email || profile.user?.email || ""}
-                onChange={(e) =>
-                  setProfile({
-                    ...profile,
-                    user: { ...profile.user, email: e.target.value },
-                  })
-                }
-              />
-            </div>
           )}
           <button type="submit" className="btn-primary" disabled={saving}>
             {saving ? "Saving..." : "Update Profile"}
