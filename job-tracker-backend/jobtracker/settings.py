@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     'corsheaders'
 ]
 CORS_ALLOWED_ORIGINS = [
-    'https://job-tracking-system-2-ncuc.onrender.com/',
+    'https://job-tracking-system-2-ncuc.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
