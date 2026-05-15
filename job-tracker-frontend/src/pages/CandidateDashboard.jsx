@@ -8,6 +8,32 @@ function CandidateDashboard() {
   const [notification, setNotification] = useState(null);
   const prevAppsRef = React.useRef([]);
 
+  const fetchNotifications = async () => {
+    try {
+      const response = await client.get("notifications/");
+      if (response.data.length > 0) {
+        // Show the most recent unread notification
+        const latest = response.data[0];
+        setNotification({
+          id: latest.id,
+          message: latest.message,
+          type: latest.message.toLowerCase().includes('rejected') ? 'error' : 'success',
+          isPersistent: true
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const markNotificationsRead = async () => {
+    try {
+      await client.post("notifications/");
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
+    }
+  };
+
   const fetchData = async (isInitial = false) => {
     try {
       const [appsRes, statsRes] = await Promise.all([
@@ -17,16 +43,13 @@ function CandidateDashboard() {
 
       const newApps = appsRes.data;
       
-      // Check for status changes (skip on initial load)
+      // Check for status changes (live updates)
       if (!isInitial && prevAppsRef.current.length > 0) {
         newApps.forEach(newApp => {
           const oldApp = prevAppsRef.current.find(a => a.id === newApp.id);
           if (oldApp && oldApp.status !== newApp.status) {
-            setNotification({
-              id: Date.now(),
-              message: `Status updated! Your application for "${newApp.job_details.title}" is now ${newApp.status.toUpperCase()}.`,
-              type: newApp.status === 'rejected' ? 'error' : 'success'
-            });
+            // Live update happened, fetch notifications to show the message
+            fetchNotifications();
           }
         });
       }
@@ -34,6 +57,10 @@ function CandidateDashboard() {
       setApplications(newApps);
       setStats(statsRes.data);
       prevAppsRef.current = newApps;
+      
+      if (isInitial) {
+        fetchNotifications();
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -44,10 +71,10 @@ function CandidateDashboard() {
   useEffect(() => {
     fetchData(true);
     
-    // Poll for updates every 10 seconds
+    // Poll for updates every 15 seconds
     const interval = setInterval(() => {
       fetchData();
-    }, 10000);
+    }, 15000);
 
     return () => clearInterval(interval);
   }, []);
@@ -80,7 +107,10 @@ function CandidateDashboard() {
           </div>
           <div style={{ fontWeight: '600' }}>{notification.message}</div>
           <button 
-            onClick={() => setNotification(null)}
+            onClick={() => {
+              setNotification(null);
+              markNotificationsRead();
+            }}
             style={{
               background: 'rgba(255, 255, 255, 0.2)',
               border: 'none',

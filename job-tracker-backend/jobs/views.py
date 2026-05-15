@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from django.core.mail import send_mail
-from .models import JobPosting,Application
-from .serializers import JobSerializer,ApplicationSerializer
+from .models import JobPosting, Application, Notification
+from .serializers import JobSerializer, ApplicationSerializer, NotificationSerializer
 
 # Create your views here.
 
@@ -189,10 +189,29 @@ class ApplicationView(APIView):
         except Exception as e:
             print(f"Error sending email: {e}")
 
+        # Create database notification for persistence across logins
+        Notification.objects.create(
+            user=application.candidate,
+            message=f"Your application for '{application.job.title}' has been updated to: {new_status}."
+        )
+
         return Response({
             "message": "Status updated and notification sent",
             "status": application.status
         })
+
+class NotificationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        # Mark all as read
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return Response({"message": "Notifications marked as read"})
 
 class DashboardStatsView(APIView):
     
