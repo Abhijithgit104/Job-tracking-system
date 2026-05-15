@@ -60,9 +60,12 @@ INSTALLED_APPS = [
     'corsheaders'
 ]
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5174",
+    'https://job-tracking-system-2-ncuc.onrender.com/',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://job-tracking-system-2-ncuc.onrender.com",
+]
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
